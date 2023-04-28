@@ -204,7 +204,30 @@
        <string>Server Connected</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btnProdTRead">
+     <widget class="QPushButton" name="btnProdTKeyInDataDelete">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>250</y>
+        <width>201</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(170, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>ProdT KeyInData Delete</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnProdTKeyInCodeList">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -224,7 +247,7 @@
        <string notr="true">background-color: rgb(170, 255, 255);</string>
       </property>
       <property name="text">
-       <string>ProdT Data Read</string>
+       <string>Read KeyInCode from DB</string>
       </property>
      </widget>
     </widget>
@@ -314,6 +337,8 @@
     </property>
     <addaction name="action_ReadFromDB"/>
     <addaction name="action_DailyProd"/>
+    <addaction name="actionTOB_Analyze"/>
+    <addaction name="actionRawMaterial"/>
    </widget>
    <addaction name="menuProduction"/>
   </widget>
@@ -326,6 +351,16 @@
   <action name="action_DailyProd">
    <property name="text">
     <string>DailyProd</string>
+   </property>
+  </action>
+  <action name="actionTOB_Analyze">
+   <property name="text">
+    <string>TOB Analyze</string>
+   </property>
+  </action>
+  <action name="actionRawMaterial">
+   <property name="text">
+    <string>RawMaterial</string>
    </property>
   </action>
  </widget>
@@ -364,14 +399,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnProdTRead</sender>
+   <sender>btnProdTKeyInDataDelete</sender>
    <signal>clicked()</signal>
    <receiver>frmMain_zeitGypsum</receiver>
-   <slot>ProdTDataRead()</slot>
+   <slot>ProdTKeyInDataDelete()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>181</x>
-     <y>369</y>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>550</x>
@@ -395,11 +430,28 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btnProdTKeyInCodeList</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>frmMain_zeitGypsum</receiver>
+   <slot>ProdTKeyInCodeList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>700</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>MenuAction(QAction*)</slot>
   <slot>ServerLogin()</slot>
   <slot>ProdTUpdate()</slot>
-  <slot>ProdTDataRead()</slot>
+  <slot>ProdTKeyInDataDelete()</slot>
+  <slot>ProdTKeyInCodeList()</slot>
  </slots>
 </ui>
