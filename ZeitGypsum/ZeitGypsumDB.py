@@ -106,8 +106,17 @@ class Zeit_Gypsum(QMainWindow):
         
     def ProdTKeyInCodeList(self):
         SH_Code = WB_prodDB.sheets['Code']
-        df_ProdT = pd.read_sql('select * from ProdT;')
-        SH_Code.range('h4').value = df_ProdT['KeyInCode'].values.reshape(-1)    
+        SH_Code.range('a1').select
+        SH_Code.range('h4:i10000').clear_contents() 
+        
+        try:
+            df_ProdT = pd.read_sql('select * from Prod_T;', self.conn)
+            
+            df = df_ProdT.groupby(by='KeyInCode', as_index=False).sum(numeric_only=True)
+            SH_Code.range('h3').value = df['KeyInCode']
+            alert('Done Read the List from DB')
+
+        except Exception as e: alert(e)
 
 
     def ProdTKeyInDataDelete(self): 
@@ -194,12 +203,13 @@ class Zeit_Gypsum(QMainWindow):
                 SH_TOB.range('a1').select
                 SH_TOB.range('a5:bz10000').clear_contents() 
                 
-                df_TOB = df_ProdT[cond_date].groupby(['BoardName', 'Date'])['sqm_Knife','sqm_DryerInput','sqm_DryerReject','sqm_SampleReject','sqm_Stacker','sqm_Loss_Wetend','Good','NoGood','Sort','ReCut'].sum()
-                
+                df_TOB = df_ProdT[cond_date].groupby(by=['BoardName', 'Date'], as_index=False)['sqm_Knife','sqm_DryerInput','sqm_DryerReject','sqm_SampleReject','sqm_Stacker','sqm_Loss_Wetend','sqm_Good','sqm_NoGood','sqm_Sort','sqm_Recut','sqm_Product'].sum(numeric_only=True)
+                print(df_TOB)
                 df_TOB['ratio_WetendLoss'] = df_TOB.apply(lambda x: x.sqm_Loss_Wetend / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
                 df_TOB['ratio_DryerReject'] = df_TOB.apply(lambda x: x.sqm_DryerReject / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
                 df_TOB['ratio_SampleReject'] = df_TOB.apply(lambda x: x.sqm_SampleReject / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
                 df_TOB['ratio_Stacker'] = df_TOB.apply(lambda x: x.sqm_Stacker / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
+                df_TOB['ratio_Product'] = df_TOB.apply(lambda x: x.sqm_Product / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
                 
                 SH_TOB.range('a5').value = df_TOB
                 
@@ -207,8 +217,8 @@ class Zeit_Gypsum(QMainWindow):
                 
                 # Change color with Same BoardName -----
                 for i in range(df_TOB['BoardName'].count()):
-                    if SH_TOB.range('a' + str(i+6)).value == SH_TOB.range('a' + str(i+5)).value: SH_TOB.range('a' + str(i+6)).font.color = (255, 255, 255)
-                    else: SH_TOB.range('a' + str(i+6)).font.color = (0, 0, 0)
+                    if SH_TOB.range('b' + str(i+6)).value == SH_TOB.range('b' + str(i+5)).value: SH_TOB.range('b' + str(i+6)).font.color = (255, 255, 255)
+                    else: SH_TOB.range('b' + str(i+6)).font.color = (0, 0, 0)
                     
                 df_TOB_BoardName = df_TOB.groupby(by='BoardName', as_index=False).sum(numeric_only=True)
                 df_TOB_BoardName.reset_index()
@@ -234,8 +244,9 @@ class Zeit_Gypsum(QMainWindow):
                 fig = go.Figure(data=[trace1, trace2], layout=layout)
                 # Display the chart
                 pio.write_html(fig, file='d:\\htmlGraph\\Product Pareto Chart.html', auto_open=True)
-                    
-            
+                
+                alert('Done, TOB Analyze')
+                
             except Exception as e: alert(e)
             
         if _action == 'RawMaterial':
@@ -245,7 +256,14 @@ class Zeit_Gypsum(QMainWindow):
                 SH_RawMaterial.range('a5:bz10000').clear_contents() 
                 
                 df_RawMaterial = df_ProdT[cond_date].groupby(by=['BoardName', 'Date'], as_index=False) ['sqm_Product', 'OG','FGD','Scrap','CF','BB','Gas_Up','Gas_Down','Electric','Stucco','Starch','BMA','DG','Fluidizer_S','DCA','Potash','Fluidizer_L','Foam','Retarder_L','AMA','Wax','Silicone','Lime','Water','STMP','EndTape','ZipTape','Glue','Ink','Deckite','GlassFiber','PaperScrap'].sum(numeric_only=True)
+                df_RawMaterial = df_RawMaterial.sort_values(by='sqm_Product', ascending=False)
                 SH_RawMaterial.range('a5').value = df_RawMaterial    
+                
+                for i in range(df_RawMaterial['BoardName'].count()):
+                    if SH_RawMaterial.range('b' + str(i+6)).value == SH_RawMaterial.range('b' + str(i+5)).value: SH_RawMaterial.range('b' + str(i+6)).font.color = (255, 255, 255)
+                    else: SH_RawMaterial.range('b' + str(i+6)).font.color = (0, 0, 0)
+                    
+                alert('Done, RawMaterial Analyze')
                 
             except Exception as e: alert(e)
     
