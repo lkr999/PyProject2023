@@ -167,6 +167,7 @@ class Zeit_Gypsum(QMainWindow):
                 SH_ReadDB.range('a1').select
                 SH_ReadDB.range('a5:bz10000').clear_contents()
                 SH_ReadDB.range('a5').value = df_ProdT[cond_date] 
+                df_ProdT.to_pickle('d:/PyProject2023/ZeitGypsum/pickleBackup/df_ProdT.pkl')
             except Exception as e: alert(e)
 
         if _action == 'DailyProd':
@@ -202,9 +203,11 @@ class Zeit_Gypsum(QMainWindow):
                 SH_TOB = WB_prodDB.sheets['TOB']
                 SH_TOB.range('a1').select
                 SH_TOB.range('a5:bz10000').clear_contents() 
+                SH_TOB.range('a6:bz10000').color = (255,255,255) 
+                SH_TOB.range('b6:bz10000').font.bold = False 
                 
                 df_TOB = df_ProdT[cond_date].groupby(by=['BoardName', 'Date'], as_index=False)['sqm_Knife','sqm_DryerInput','sqm_DryerReject','sqm_SampleReject','sqm_Stacker','sqm_Loss_Wetend','sqm_Good','sqm_NoGood','sqm_Sort','sqm_Recut','sqm_Product'].sum(numeric_only=True)
-                print(df_TOB)
+                
                 df_TOB['ratio_WetendLoss'] = df_TOB.apply(lambda x: x.sqm_Loss_Wetend / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
                 df_TOB['ratio_DryerReject'] = df_TOB.apply(lambda x: x.sqm_DryerReject / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
                 df_TOB['ratio_SampleReject'] = df_TOB.apply(lambda x: x.sqm_SampleReject / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
@@ -212,8 +215,7 @@ class Zeit_Gypsum(QMainWindow):
                 df_TOB['ratio_Product'] = df_TOB.apply(lambda x: x.sqm_Product / x.sqm_Knife *100 if x.sqm_Knife>0 else 0,  axis=1)
                 
                 SH_TOB.range('a5').value = df_TOB
-                
-                df_TOB = df_TOB.reset_index()
+                # df_TOB = df_TOB.reset_index()
                 
                 # Change color with Same BoardName -----
                 for i in range(df_TOB['BoardName'].count()):
@@ -221,15 +223,23 @@ class Zeit_Gypsum(QMainWindow):
                     else: SH_TOB.range('b' + str(i+6)).font.color = (0, 0, 0)
                     
                 df_TOB_BoardName = df_TOB.groupby(by='BoardName', as_index=False).sum(numeric_only=True)
-                df_TOB_BoardName.reset_index()
+                # df_TOB_BoardName.reset_index()
                 
                 # Pareto chart based on BoardName ----
                 df_TOB_BoardName = df_TOB_BoardName.sort_values(by='sqm_Product', ascending=False)
                 df_TOB_BoardName['Cumulative_Percentage'] = df_TOB_BoardName['sqm_Product'].cumsum() / df_TOB_BoardName['sqm_Product'].sum() * 100
                 
-                SH_TOB.range('a' + str(10+df_TOB['BoardName'].count())).value = '2. BoardName SubTotal'
-                SH_TOB.range('a' + str(11+df_TOB['BoardName'].count())).value = df_TOB_BoardName
+                Row_title2 = df_TOB['BoardName'].count()
+                SH_TOB.range(str(11+Row_title2) + ':' + str(11+Row_title2)).color = (255,255,0)   #Title2 Color ---
+                SH_TOB.range(str(11+Row_title2) + ':' + str(10+Row_title2)).font.bold = True   #Title2 Font ---
+                
+                
+                SH_TOB.range('a' + str(10+Row_title2)).value = '2. BoardName SubTotal'
+                SH_TOB.range('a' + str(11+Row_title2)).value = df_TOB_BoardName
                 SH_TOB.range('b' + str(13+df_TOB['BoardName'].count()+df_TOB_BoardName['BoardName'].count())).value = 'Sub Total(sqm)'
+                SH_TOB.range('b' + str(13+df_TOB['BoardName'].count()+df_TOB_BoardName['BoardName'].count())).font.bold = True
+                SH_TOB.range('b' + str(13+df_TOB['BoardName'].count()+df_TOB_BoardName['BoardName'].count())).color = (255,130,0)
+                
                 SH_TOB.range('c' + str(13+df_TOB['BoardName'].count()+df_TOB_BoardName['BoardName'].count())).value = df_TOB_BoardName.sum(numeric_only=True).values.reshape(-1)
                 
                 
@@ -253,15 +263,24 @@ class Zeit_Gypsum(QMainWindow):
             try:
                 SH_RawMaterial = WB_prodDB.sheets['RawMaterial']
                 SH_RawMaterial.range('a1').select
-                SH_RawMaterial.range('a5:bz10000').clear_contents() 
+                SH_RawMaterial.range('a7:bz10000').clear_contents() 
                 
                 df_RawMaterial = df_ProdT[cond_date].groupby(by=['BoardName', 'Date'], as_index=False) ['sqm_Product', 'OG','FGD','Scrap','CF','BB','Gas_Up','Gas_Down','Electric','Stucco','Starch','BMA','DG','Fluidizer_S','DCA','Potash','Fluidizer_L','Foam','Retarder_L','AMA','Wax','Silicone','Lime','Water','STMP','EndTape','ZipTape','Glue','Ink','Deckite','GlassFiber','PaperScrap'].sum(numeric_only=True)
                 df_RawMaterial = df_RawMaterial.sort_values(by='sqm_Product', ascending=False)
-                SH_RawMaterial.range('a5').value = df_RawMaterial    
+                SH_RawMaterial.range('a5').value = df_RawMaterial  
+                print('df_RawMaterial----------------------')  
+                print(df_RawMaterial)  
                 
-                for i in range(df_RawMaterial['BoardName'].count()):
+                Rows_1 = df_RawMaterial['BoardName'].count()
+                
+                for i in range(Rows_1):
                     if SH_RawMaterial.range('b' + str(i+6)).value == SH_RawMaterial.range('b' + str(i+5)).value: SH_RawMaterial.range('b' + str(i+6)).font.color = (255, 255, 255)
                     else: SH_RawMaterial.range('b' + str(i+6)).font.color = (0, 0, 0)
+                    
+                    SH_RawMaterial.range('a' + str(Rows_1+6+3)).value = '2. Unit Consumption per sqm(kg/sqm)'
+                    if SH_RawMaterial.range('d' + str(i+6)).value >0: 
+                        SH_RawMaterial.range('a' + str(Rows_1+i+6+4)).value = SH_RawMaterial.range('a' + str(i+6) + ':d' + str(i+6)).value
+                        SH_RawMaterial.range('e' + str(Rows_1+i+6+4)).value = np.array(SH_RawMaterial.range('d' + str(i+6) + ':v'+ str(i+6)).value)/SH_RawMaterial.range('d' + str(i+6)).value * 1000
                     
                 alert('Done, RawMaterial Analyze')
                 
@@ -278,12 +297,10 @@ class Zeit_Gypsum(QMainWindow):
                 else: alert('Check the DB Connection')
             except Exception as e: alert(e)            
         else: alert('Wrong ID or Password, Please Check again!!')     
-        return
     
         
     def ConnectDB(self, USER, HOST, PASSWORD, DB):
         # DB Setting ------
-
         try:
             # self.conn = pymysql.connect(host='192.168.1.95', user=USER, password=PASSWORD, db='zeitgypsumdb', charset='utf8')
             self.conn = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB, charset='utf8')
